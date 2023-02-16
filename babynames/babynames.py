@@ -42,7 +42,7 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
     # +++your code here+++
-    final_list = [] 
+    final_list = []
 
     with open(filename, "r") as file:
         text = file.read()
