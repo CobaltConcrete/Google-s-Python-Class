@@ -38,6 +38,7 @@ print_words() and print_top().
 """
 
 import sys
+import re
 
 # +++your code here+++
 # Define print_words(filename) and print_top(filename) functions.
@@ -47,22 +48,78 @@ import sys
 
 ###
 
+
 # This basic command line argument parsing code is provided and
 # calls the print_words() and print_top() functions which you must define.
 def main():
-  if len(sys.argv) != 3:
-    print 'usage: ./wordcount.py {--count | --topcount} file'
-    sys.exit(1)
+    if len(sys.argv) != 3:
+        print("usage: ./wordcount.py {--count | --topcount} file")
+        sys.exit(1)
+    option = sys.argv[1]
+    filename = sys.argv[2]
+    if option == "--count":
+        print_words(filename)
+    elif option == "--topcount":
+        print_top(filename)
+    else:
+        print(f"unknown option: {option}")
+        sys.exit(1)
 
-  option = sys.argv[1]
-  filename = sys.argv[2]
-  if option == '--count':
-    print_words(filename)
-  elif option == '--topcount':
-    print_top(filename)
-  else:
-    print 'unknown option: ' + option
-    sys.exit(1)
 
-if __name__ == '__main__':
-  main()
+
+def DICT_word_count(filename):
+    with open(filename, "r") as file:
+        text = file.read()
+
+    base_dict = {}
+
+    # split based on whitespace and '--'
+    words = re.split(r"\s|--", text)
+    for word in words:
+        # remove anything that isn't alphanumeric or ' or _
+        word = re.sub("[^\w']", "", word.lower())
+        if word:
+            if word in base_dict:
+                base_dict[word] += 1
+            else:
+                base_dict[word] = 1
+
+    return base_dict
+
+
+## print all by word, ascending
+def print_words(filename):
+    base_dict = DICT_word_count(filename)
+    words_dict = sorted(base_dict.items())
+    for word in words_dict:
+        spaces = return_spaces(words_dict, len(word[0]))
+        print(f'{word[0]}{spaces}{word[1]}')
+
+## print top 20 by count, descending
+def print_top(filename):
+    base_dict = DICT_word_count(filename)
+    top_dict = sorted(base_dict.items(), key=lambda item: item[1], reverse=True)
+
+    for word in top_dict[:20]:
+        spaces = return_spaces(top_dict[:20], len(word[0]))
+        print(f'{word[0]}{spaces}{word[1]}')
+
+
+## organise such that the counts are aligned
+def return_spaces(dictionary, len_x):
+    longest = 0
+    for word in dictionary:
+        length = len(word[0])
+        if length > longest:
+            longest = length
+    spaces = ' '
+    for i in range(longest - len_x):
+        spaces += ' '
+    return spaces
+
+
+if __name__ == "__main__":
+    main()
+
+# python wordcount.py --count alice.txt
+# python wordcount.py --topcount alice.txt
